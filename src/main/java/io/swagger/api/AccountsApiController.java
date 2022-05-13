@@ -33,6 +33,7 @@ import javax.validation.constraints.*;
 import javax.validation.Valid;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -53,17 +54,12 @@ public class AccountsApiController implements AccountsApi {
     }
 
     public ResponseEntity<AccountDTO> createAccount(@Parameter(in = ParameterIn.DEFAULT, description = "New account details", schema=@Schema()) @Valid @RequestBody NewAccountDTO body) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.contains("application/json")) {
-            try {
-                return new ResponseEntity<AccountDTO>(objectMapper.readValue("{\n  \"OwnerName\" : \"Erwin\",\n  \"Iban\" : \"NL01INHO0000000001\",\n  \"Balance\" : 23.45\n}", AccountDTO.class), HttpStatus.NOT_IMPLEMENTED);
-            } catch (IOException e) {
-                log.error("Couldn't serialize response for content type application/json", e);
-                return new ResponseEntity<AccountDTO>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
+        AccountDTO Account = new AccountDTO();
+        Account.setBalance(new BigDecimal(232));
+        Account.setIban("NL01INHO00000001337");
+        Account.setOwnerName(body.getOwnerName());
 
-        return new ResponseEntity<AccountDTO>(HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<AccountDTO>(Account, HttpStatus.OK);
     }
 
     public ResponseEntity<TransactionDTO> deposit(@Size(min=18,max=18) @Parameter(in = ParameterIn.PATH, description = "The Iban for the account to get", required=true, schema=@Schema()) @PathVariable("Iban") String iban,@Parameter(in = ParameterIn.DEFAULT, description = "Deposit details", schema=@Schema()) @Valid @RequestBody DepositDTO body) {
